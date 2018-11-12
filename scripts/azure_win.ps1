@@ -4,8 +4,8 @@ Get-AzureRmSubscription | Sort-Object subscriptionName | Select-Object Subscript
 Select-AzureRmSubscription -SubscriptionName Pay-As-You-Go
 
 # Declare the variables
-$version = "3"
-$resourceGroup = "bustergroup$version"
+$version = "1"
+$resourceGroup = "Bustergroup$version"
 $location = "East US"
 $vmName = "BusterVM$version"
 $subnetName = "SubNetBuster$version"
