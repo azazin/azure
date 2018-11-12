@@ -1,5 +1,5 @@
 #uncomment before start
-#Login-AzureRmAccount
+Login-AzureRmAccount
 Get-AzureRmSubscription | Sort-Object subscriptionName | Select-Object SubscriptionName
 Select-AzureRmSubscription -SubscriptionName Pay-As-You-Go
 
@@ -19,9 +19,13 @@ $dataDiskName = $vmName + "_datadisk$version"
 $strNum = 11
 [int]$diskSizeInGB = [convert]::ToInt32($strNum, 10)
 # Storage Account Name (must be lowercase)
-$StorageName = "busterstorage$version"
+$StorageAccName = "busterstorage$version"
 $ScriptFormatPath = ".\format.ps1"
 $AzureStorageShare = "bustershare$version"
+
+# set autoshutdown time for VM
+$shutdown_time = "1700"
+$shutdown_timezone = "FLE Standard Time"
 
 
 
@@ -37,7 +41,7 @@ New-AzureRmResourceGroup -Name $resourceGroup -Location $location
 
 # Create a storage account for this resource group
 Write-Host "Create a storage account"  -ForegroundColor Green
-New-AzureRMStorageAccount -ResourceGroupName $resourceGroup -Location $Location -AccountName $StorageName -SkuName Standard_LRS
+New-AzureRMStorageAccount -ResourceGroupName $resourceGroup -Location $Location -AccountName $StorageAccName -SkuName Standard_LRS
 
 # Create a subnet configuration
 Write-Host "Create a subnet configuration"  -ForegroundColor Green
@@ -98,6 +102,22 @@ $vmConfig = Add-AzureRmVMDataDisk -VM $vmConfig -Name $dataDiskName -DiskSizeInG
 Write-Host "Create a virtual machine using the virtual machine configuration"  -ForegroundColor Green
 New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmConfig
 
+
+
+# Set the auto-shutdown time
+Write-Host "Set the auto-shutdown time for the virtual machine"  -ForegroundColor Green
+$properties = @{
+    "status" = "Enabled";
+    "taskType" = "ComputeVmShutdownTask";
+    "dailyRecurrence" = @{"time" = $shutdown_time };
+    "timeZoneId" = $shutdown_timezone;
+    "notificationSettings" = @{
+        "status" = "Disabled";
+        "timeInMinutes" = 30
+    }
+    "targetResourceId" = (Get-AzureRmVM -ResourceGroupName $resourceGroup -Name $vmName).Id
+}
+
 #getting IP address of the VM
 Get-AzureRmPublicIpAddress -ResourceGroupName $resourceGroup | Select "IpAddress"
 
@@ -106,8 +126,6 @@ Get-AzureRmPublicIpAddress -ResourceGroupName $resourceGroup | Select "IpAddress
 Write-Host "Initialize and format previously added hard disk"  -ForegroundColor Green
 Invoke-AzureRmVMRunCommand -ResourceGroupName $resourceGroup -VMName $vmName -CommandId 'RunPowerShellScript' -ScriptPath   $ScriptFormatPath
 
-#key1 export into file
-#(Get-AzureRmStorageAccountKey -ResourceGroupName $resourceGroup -AccountName $StorageName).Value[0] > key.txt
 
 
 
