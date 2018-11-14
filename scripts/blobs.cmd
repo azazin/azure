@@ -1,7 +1,8 @@
 @echo off
-echo "please use your AZ credentials"
+echo "please enter your AZ login"
 call set /p login=
 call az login  --username %login%
+echo "please enter any 3 digit to create variable"
 call set /p version=
 
 
