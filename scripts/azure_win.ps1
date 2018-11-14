@@ -1,3 +1,4 @@
+#uncomment before start
 Login-AzureRmAccount
 Get-AzureRmSubscription | Sort-Object subscriptionName | Select-Object SubscriptionName
 Select-AzureRmSubscription -SubscriptionName Pay-As-You-Go
@@ -21,6 +22,12 @@ $strNum = 11
 $StorageAccName = "busterstorage$version"
 $ScriptFormatPath = ".\format.ps1"
 $AzureStorageShare = "bustershare$version"
+
+# set autoshutdown time for VM
+$shutdown_time = "1700"
+$shutdown_timezone = "FLE Standard Time"
+
+
 
 
 
@@ -95,11 +102,34 @@ $vmConfig = Add-AzureRmVMDataDisk -VM $vmConfig -Name $dataDiskName -DiskSizeInG
 Write-Host "Create a virtual machine using the virtual machine configuration"  -ForegroundColor Green
 New-AzureRmVM -ResourceGroupName $resourceGroup -Location $location -VM $vmConfig
 
+
+
+# Set the auto-shutdown time
+Write-Host "Set the auto-shutdown time for the virtual machine"  -ForegroundColor Green
+$properties = @{
+    "status" = "Enabled";
+    "taskType" = "ComputeVmShutdownTask";
+    "dailyRecurrence" = @{"time" = $shutdown_time };
+    "timeZoneId" = $shutdown_timezone;
+    "notificationSettings" = @{
+        "status" = "Disabled";
+        "timeInMinutes" = 30
+    }
+    "targetResourceId" = (Get-AzureRmVM -ResourceGroupName $resourceGroup -Name $vmName).Id
+}
+
 #getting IP address of the VM
 Get-AzureRmPublicIpAddress -ResourceGroupName $resourceGroup | Select "IpAddress"
+
 
 #Initialize and format attached raw disk
 Write-Host "Initialize and format previously added hard disk"  -ForegroundColor Green
 Invoke-AzureRmVMRunCommand -ResourceGroupName $resourceGroup -VMName $vmName -CommandId 'RunPowerShellScript' -ScriptPath   $ScriptFormatPath
+
+
+
+
+
+
 
 Write-Host "Finished!"  -ForegroundColor Green
