@@ -1,4 +1,3 @@
-#uncomment before start
 Login-AzureRmAccount
 Get-AzureRmSubscription | Sort-Object subscriptionName | Select-Object SubscriptionName
 Select-AzureRmSubscription -SubscriptionName Pay-As-You-Go
