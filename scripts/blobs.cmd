@@ -22,13 +22,12 @@ call set storageacckey=az storage account keys list --account-name %storageaccna
 call set AZURE_STORAGE_ACCESS_KEY=%storageacckey%
 call set AZURE_STORAGE_ACCOUNT=%storageaccname%
 
+
 call %AZURE_STORAGE_ACCESS_KEY% >key.txt
 
 call az storage container create --name %containername%
-
-call type key.txt
-
-call AzCopy /Source:C:\Users\buster\Documents\GitHub\azure /Dest:https://%storageaccname%.blob.core.windows.net/%containername% /DestKey:%storageacckey%  /S
+call set /P keystring=<key.txt
+call echo %keystring%
 
 
-call AzCopy /Source:C:\Users\buster\Documents\GitHub\azure /Dest:https://%storageaccname%.blob.core.windows.net/%containername% /DestKey:Vo1TdS6NQVx1bAxR3JDKjN48RN5jUfnLBcdeRZOKpWPCWh1+esgv5mLSjI9bfHlHxh2Xu1JOgCghdPEh+aIiXRWnRqO2qM/w==  /S
+call AzCopy /Source:C:\Users\buster\Documents\GitHub\azure /Dest:https://%storageaccname%.blob.core.windows.net/%containername% /DestKey:%keystring% /S
