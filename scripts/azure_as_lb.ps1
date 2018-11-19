@@ -105,8 +105,8 @@ for ($i=1; $i -le $numbernodes; $i++)
 }
 
 
-#Install IIS update the Default.htm page
-Write-Host "Install IIS update the Default.htm page"  -ForegroundColor Green
+#Install IIS and update the Default.htm page
+Write-Host "Install IIS and update the Default.htm page"  -ForegroundColor Green
 for ($i=1; $i -le $numbernodes; $i++)
 {
 
